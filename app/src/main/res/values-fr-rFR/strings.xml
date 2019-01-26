@@ -2,4 +2,7 @@
 <resources>
     <string name="app_name">SimpleDiapo</string>
     <string name="nothing_to_display">Rien à afficher</string>
+    <string name="set_remote_target_folder_url">Définir l\'URL du répertoire cible distant</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
 </resources>

@@ -1,14 +1,25 @@
 package com.ladybugriders.simplediapo;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Callback;
 
@@ -148,6 +159,25 @@ public class MainActivity extends AppCompatActivity {
         delayedHide(100);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.set_remote_target_folder_url:
+                setRemoteTargetFolderURL();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void toggle() {
         if (mVisible) {
             hide();
@@ -189,5 +219,45 @@ public class MainActivity extends AppCompatActivity {
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+    private void setRemoteTargetFolderURL()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.set_remote_target_folder_url);
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        // Set value regarding what is stored in shared preferences.
+        SharedPreferences sharedPref = getBaseContext().getSharedPreferences(
+                SharedPreferencesUtilty.MAIN_SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+        input.setText(sharedPref.getString(SharedPreferencesUtilty.REMOTE_FOLDER_URL_KEY, ""));
+
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Get value from text field.
+                String remoteFolderURL = input.getText().toString();
+                // Store value in shared preferences.
+                SharedPreferences sharedPref = getBaseContext().getSharedPreferences(
+                        SharedPreferencesUtilty.REMOTE_FOLDER_URL_KEY, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("remote_folder_url", remoteFolderURL);
+                editor.apply();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 }

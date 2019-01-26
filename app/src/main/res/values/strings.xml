@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">SimpleDiapo</string>
+
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="nothing_to_display">Nothing to display</string>
+</resources>

@@ -231,9 +231,7 @@ public class MainActivity extends AppCompatActivity {
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         // Set value regarding what is stored in shared preferences.
-        SharedPreferences sharedPref = getBaseContext().getSharedPreferences(
-                SharedPreferencesUtilty.MAIN_SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-        input.setText(sharedPref.getString(SharedPreferencesUtilty.REMOTE_FOLDER_URL_KEY, ""));
+        input.setText(SharedPreferencesUtilty.GetRemoteFolderURL(getBaseContext()));
 
         builder.setView(input);
 
@@ -244,11 +242,7 @@ public class MainActivity extends AppCompatActivity {
                 // Get value from text field.
                 String remoteFolderURL = input.getText().toString();
                 // Store value in shared preferences.
-                SharedPreferences sharedPref = getBaseContext().getSharedPreferences(
-                        SharedPreferencesUtilty.REMOTE_FOLDER_URL_KEY, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("remote_folder_url", remoteFolderURL);
-                editor.apply();
+                SharedPreferencesUtilty.SetRemoteFolderURL(getBaseContext(), remoteFolderURL);
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

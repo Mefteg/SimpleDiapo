@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import com.squareup.picasso.Callback;
@@ -29,6 +30,9 @@ import com.squareup.picasso.Callback;
  */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+
+    private static final int MIN_TIME_INTERVAL_BETWEEN_TWO_IMAGES = 1; // in seconds.
+    private static final int MAX_TIME_INTERVAL_BETWEEN_TWO_IMAGES = 30 * 60; // in seconds.
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -124,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        m_diapoController = new DiapoController();
+        m_diapoController = new DiapoController(this);
 
         m_diapoLoader = new HttpDiapoLoader(this);
         m_diapoLoader.load(m_diapoLoaderCallback);
@@ -172,6 +176,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.set_remote_target_folder_url:
                 setRemoteTargetFolderURL();
+                return true;
+            case R.id.set_time_interval_between_two_images:
+                setTimeIntervalBetweenTwoImages();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -221,30 +228,15 @@ public class MainActivity extends AppCompatActivity {
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
-    private void setRemoteTargetFolderURL()
+    private void showCustomAlertDialog(String title, final View view, DialogInterface.OnClickListener positiveAction)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.set_remote_target_folder_url);
+        builder.setTitle(title);
 
-        // Set up the input
-        final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        // Set value regarding what is stored in shared preferences.
-        input.setText(SharedPreferencesUtilty.GetRemoteFolderURL(getBaseContext()));
-
-        builder.setView(input);
+        builder.setView(view);
 
         // Set up the buttons
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Get value from text field.
-                String remoteFolderURL = input.getText().toString();
-                // Store value in shared preferences.
-                SharedPreferencesUtilty.SetRemoteFolderURL(getBaseContext(), remoteFolderURL);
-            }
-        });
+        builder.setPositiveButton(R.string.ok, positiveAction);
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -253,5 +245,55 @@ public class MainActivity extends AppCompatActivity {
         });
 
         builder.show();
+    }
+
+    private void setRemoteTargetFolderURL()
+    {
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        // Set value regarding what is stored in shared preferences.
+        input.setText(SharedPreferencesUtilty.GetRemoteFolderURL(getBaseContext()));
+
+        showCustomAlertDialog(
+                getResources().getString(R.string.set_remote_target_folder_url),
+                input,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Get value from text field.
+                        String remoteFolderURL = input.getText().toString();
+                        // Store value in shared preferences.
+                        SharedPreferencesUtilty.SetRemoteFolderURL(getBaseContext(), remoteFolderURL);
+
+                        m_diapoController.resetDiapo();
+                    }
+                });
+    }
+
+    private void setTimeIntervalBetweenTwoImages()
+    {
+        int timeInterval = SharedPreferencesUtilty.GetTimeIntervalBetweenTwoImages(getBaseContext());
+        // Set up the input
+        final NumberPicker input = new NumberPicker(this);
+        input.setMinValue(MIN_TIME_INTERVAL_BETWEEN_TWO_IMAGES);
+        input.setMaxValue(MAX_TIME_INTERVAL_BETWEEN_TWO_IMAGES);
+        input.setValue(timeInterval);
+
+        showCustomAlertDialog(
+                getResources().getString(R.string.set_time_interval_between_two_images),
+                input,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Get value from number picker.
+                        int timeInterval = input.getValue();
+                        // Store value in shared preferences.
+                        SharedPreferencesUtilty.SetTimeIntervalBetweenTwoImages(getBaseContext(), timeInterval);
+
+                        m_diapoController.resetDiapo();
+                    }
+                });
     }
 }

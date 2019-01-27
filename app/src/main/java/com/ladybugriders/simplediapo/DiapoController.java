@@ -1,5 +1,6 @@
 package com.ladybugriders.simplediapo;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
@@ -12,13 +13,8 @@ import java.util.TimerTask;
 
 public class DiapoController
 {
-    private static final int DISPLAY_DURATION = 2000;
-
-    private File[] m_imageFiles;
-    private int m_displayedImageIndex;
-
-    private Timer m_timer;
-    private TimerTask m_timerTask = new TimerTask() {
+    private class DisplayImageTimerTask extends TimerTask
+    {
         @Override
         public void run() {
             showImage(m_imageView, m_displayedImageIndex);
@@ -28,15 +24,26 @@ public class DiapoController
                 m_displayedImageIndex = 0;
             }
         }
-    };
+    }
+
+    private Context m_context;
+
+    private File[] m_imageFiles;
+    private int m_displayedImageIndex;
+
+    private Timer m_timer;
+    private boolean m_timerStarted;
 
     private ImageView m_imageView;
 
-    public DiapoController()
+    public DiapoController(Context context)
     {
+        m_context = context;
+
         m_displayedImageIndex = 0;
 
         m_timer = new Timer();
+        m_timerStarted = false;
     }
 
     public void startDiapo(final ImageView imageView)
@@ -48,6 +55,11 @@ public class DiapoController
 
         this.m_imageView = imageView;
 
+        resetDiapo();
+    }
+
+    public void resetDiapo()
+    {
         // Gather all image paths.
         gatherImagePaths();
         if (m_imageFiles.length == 0)
@@ -55,10 +67,12 @@ public class DiapoController
             return;
         }
 
-        // Stop the timer in case a task is already going.
-        //m_timer.cancel();
+        cancelTimerIfNecessary();
+
+        int timeIntervalInMs = SharedPreferencesUtilty.GetTimeIntervalBetweenTwoImages(m_context) * 1000;
         // Then schedule the new task.
-        m_timer.scheduleAtFixedRate(m_timerTask, 0, DISPLAY_DURATION);
+        m_timer.scheduleAtFixedRate(new DisplayImageTimerTask(), 0, timeIntervalInMs);
+        m_timerStarted = true;
     }
 
     private void gatherImagePaths()
@@ -84,5 +98,16 @@ public class DiapoController
             }
         };
         mainHandler.post(myRunnable);
+    }
+
+    private void cancelTimerIfNecessary()
+    {
+        if (m_timerStarted == true)
+        {
+            m_timer.cancel();
+            m_timer.purge();
+            m_timer = new Timer();
+            m_timerStarted = false;
+        }
     }
 }

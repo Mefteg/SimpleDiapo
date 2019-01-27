@@ -2,4 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/set_remote_target_folder_url"
         android:title="@string/set_remote_target_folder_url"/>
+    <item android:id="@+id/set_time_interval_between_two_images"
+        android:title="@string/set_time_interval_between_two_images"/>
 </menu>

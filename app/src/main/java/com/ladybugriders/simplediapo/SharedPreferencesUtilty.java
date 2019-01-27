@@ -7,6 +7,9 @@ public abstract class SharedPreferencesUtilty
 {
     public static final String MAIN_SHARED_PREFERENCES_KEY = "main_shared_preferences";
     public static final String REMOTE_FOLDER_URL_KEY = "remote_folder_url";
+    public static final String TIME_INTERVAL_BETWEEN_TWO_IMAGES_KEY = "time_interval_between_two_images";
+
+    public static final int DEFAULT_INTERVAL_BETWEEN_TWO_IMAGES = 15; // Interval in seconds.
 
     public static String GetRemoteFolderURL(Context context)
     {
@@ -21,6 +24,22 @@ public abstract class SharedPreferencesUtilty
                 MAIN_SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(REMOTE_FOLDER_URL_KEY, remoteFolderURL);
+        editor.apply();
+    }
+
+    public static int GetTimeIntervalBetweenTwoImages(Context context)
+    {
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                MAIN_SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+        return sharedPref.getInt(TIME_INTERVAL_BETWEEN_TWO_IMAGES_KEY, DEFAULT_INTERVAL_BETWEEN_TWO_IMAGES);
+    }
+
+    public static void SetTimeIntervalBetweenTwoImages(Context context, int timeIntervalBetweenTwoImages)
+    {
+        SharedPreferences sharedPref = context.getSharedPreferences(
+                MAIN_SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(TIME_INTERVAL_BETWEEN_TWO_IMAGES_KEY, timeIntervalBetweenTwoImages);
         editor.apply();
     }
 }

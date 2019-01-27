@@ -5,4 +5,5 @@
     <string name="set_remote_target_folder_url">Définir l\'URL du répertoire cible distant</string>
     <string name="ok">OK</string>
     <string name="cancel">Annuler</string>
+    <string name="set_time_interval_between_two_images">Définir l\'intervalle de temps entre deux images</string>
 </resources>

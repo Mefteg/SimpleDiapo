@@ -84,7 +84,7 @@ public class HttpDiapoLoader
 
                 for (int i = 0; i < m_images.length; ++i)
                 {
-                    String imageName = m_images[0];
+                    String imageName = m_images[i];
                     String imageURL = SharedPreferencesUtilty.GetRemoteFolderURL(m_context) + imageName;
                     Bitmap image;
                     try

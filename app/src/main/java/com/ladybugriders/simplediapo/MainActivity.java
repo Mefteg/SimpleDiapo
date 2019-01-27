@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
@@ -108,6 +109,9 @@ public class MainActivity extends AppCompatActivity {
         m_diapoLoader.load(m_diapoLoaderCallback);
 
         setContentView(R.layout.activity_main);
+
+        // Keep screen on !
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mVisible = true;
 

@@ -138,7 +138,8 @@ public class HttpDiapoLoader
     private boolean loadSimpleDiapoJSON()
     {
         String remoteFolderURL = SharedPreferencesUtilty.GetRemoteFolderURL(m_context);
-        String jsonURL = remoteFolderURL + SIMPLE_DIAPO_JSON_FILENAME;
+        String imagesProvider = SharedPreferencesUtilty.GetImagesProvider(m_context);
+        String jsonURL = remoteFolderURL + imagesProvider;
         try
         {
             URL url = new URL(jsonURL);

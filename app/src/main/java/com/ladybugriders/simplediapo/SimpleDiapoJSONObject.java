@@ -11,6 +11,7 @@ public class SimpleDiapoJSONObject extends JSONObject
     private static final String TAG = "SimpleDiapoJSONObject";
 
     private static final String IMAGES_KEY = "images";
+    private static final String FILE_PATH_KEY = "file_path";
 
     public SimpleDiapoJSONObject(String data) throws JSONException {
         super(data);
@@ -33,7 +34,8 @@ public class SimpleDiapoJSONObject extends JSONObject
         {
             try
             {
-                images[i] = jsonImages.getString(i);
+                JSONObject jsonImage = jsonImages.getJSONObject(i);
+                images[i] = jsonImage.getString(FILE_PATH_KEY);
             }
             catch (Exception e)
             {

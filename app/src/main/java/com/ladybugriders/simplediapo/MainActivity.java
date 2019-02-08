@@ -149,6 +149,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.set_remote_target_folder_url:
                 setRemoteTargetFolderURL();
                 return true;
+            case R.id.set_images_provider:
+                setImagesProvider();
+                return true;
             case R.id.set_time_interval_between_two_images:
                 setTimeIntervalBetweenTwoImages();
                 return true;
@@ -237,6 +240,31 @@ public class MainActivity extends AppCompatActivity {
                         String remoteFolderURL = input.getText().toString();
                         // Store value in shared preferences.
                         SharedPreferencesUtilty.SetRemoteFolderURL(getBaseContext(), remoteFolderURL);
+
+                        m_diapoController.resetDiapo();
+                    }
+                });
+    }
+
+    private void setImagesProvider()
+    {
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        // Set value regarding what is stored in shared preferences.
+        input.setText(SharedPreferencesUtilty.GetImagesProvider(getBaseContext()));
+
+        showCustomAlertDialog(
+                getResources().getString(R.string.set_images_provider),
+                input,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Get value from text field.
+                        String imagesProvider = input.getText().toString();
+                        // Store value in shared preferences.
+                        SharedPreferencesUtilty.SetImagesProvider(getBaseContext(), imagesProvider);
 
                         m_diapoController.resetDiapo();
                     }

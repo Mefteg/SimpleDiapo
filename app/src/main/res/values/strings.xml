@@ -1,11 +1,10 @@
 <resources>
     <string name="app_name">SimpleDiapo</string>
 
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="nothing_to_display">Nothing to display</string>
     <string name="set_remote_target_folder_url">Set remote target folder URL</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="set_time_interval_between_two_images">Set time interval between two images</string>
+    <string name="set_images_provider">Set images provider</string>
 </resources>

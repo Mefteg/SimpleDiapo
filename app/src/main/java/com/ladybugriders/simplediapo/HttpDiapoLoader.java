@@ -6,12 +6,9 @@ import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
-import android.util.Log;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -26,19 +23,9 @@ import timber.log.Timber;
 
 public class HttpDiapoLoader
 {
-    private static final String TAG = "HttpDiapoLoader";
-    private static final String IMAGE_URL = "http://37.187.65.218/tom_www/public/images/gringo_avatar_tom.jpg";
-    private static final String IMAGE_NAME = "gringo_avatar_tom";
-    private static final String IMAGE_EXT = "jpg";
-    private static final String SIMPLE_DIAPO_JSON_FILENAME = "simplediapo.json";
 
     private Context m_context;
     private String[] m_images;
-
-    public HttpDiapoLoader()
-    {
-
-    }
 
     public HttpDiapoLoader(Context context)
     {

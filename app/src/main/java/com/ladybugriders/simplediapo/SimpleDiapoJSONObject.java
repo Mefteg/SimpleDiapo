@@ -1,7 +1,5 @@
 package com.ladybugriders.simplediapo;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,8 +8,6 @@ import timber.log.Timber;
 
 public class SimpleDiapoJSONObject extends JSONObject
 {
-    private static final String TAG = "SimpleDiapoJSONObject";
-
     private static final String IMAGES_KEY = "images";
     private static final String FILE_PATH_KEY = "file_path";
 

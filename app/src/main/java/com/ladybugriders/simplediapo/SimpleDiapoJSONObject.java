@@ -6,6 +6,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import timber.log.Timber;
+
 public class SimpleDiapoJSONObject extends JSONObject
 {
     private static final String TAG = "SimpleDiapoJSONObject";
@@ -25,7 +27,7 @@ public class SimpleDiapoJSONObject extends JSONObject
         }
         catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
             return new String[0];
         }
 
@@ -39,7 +41,7 @@ public class SimpleDiapoJSONObject extends JSONObject
             }
             catch (Exception e)
             {
-                Log.e(TAG, e.toString());
+                Timber.e(e.toString());
                 return new String[0];
             }
         }

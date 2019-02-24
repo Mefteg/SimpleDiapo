@@ -22,6 +22,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import timber.log.Timber;
+
 public class HttpDiapoLoader
 {
     private static final String TAG = "HttpDiapoLoader";
@@ -72,6 +74,9 @@ public class HttpDiapoLoader
                     return;
                 }
 
+                // Remove unnecessary images.
+                removeUnnecessaryImages(m_images);
+
                 if (m_images.length == 0)
                 {
                     if (callback != null)
@@ -93,7 +98,7 @@ public class HttpDiapoLoader
                     }
                     catch (IOException e)
                     {
-                        Log.e(TAG, "Not able to load " + imageURL + " :\n" + e.toString());
+                        Timber.e("Not able to load " + imageURL + " :\n" + e.toString());
                         callback.onError(e);
 
                         return;
@@ -162,11 +167,43 @@ public class HttpDiapoLoader
         }
         catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
             return false;
         }
 
         return true;
+    }
+
+    private void removeUnnecessaryImages(String[] newImages)
+    {
+        File albumDirectory = FileUtility.GetPublicAlbumStorageDir();
+        File[] storedImageFiles = FileUtility.GetAllImagesInDirectory(albumDirectory);
+
+        for (File imageFile : storedImageFiles)
+        {
+            if (arrayContains(m_images, imageFile.getName()))
+            {
+                // Check change with md5.
+            }
+            else
+            {
+                // Remove the file.
+                imageFile.delete();
+            }
+        }
+    }
+
+    private boolean arrayContains(String[] array, String value)
+    {
+        for (String element : array)
+        {
+            if (element.equals(value))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean saveAsJpeg(Bitmap image, String imageName)
@@ -209,7 +246,7 @@ public class HttpDiapoLoader
         }
         catch (IOException e)
         {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
             return false;
         }
 

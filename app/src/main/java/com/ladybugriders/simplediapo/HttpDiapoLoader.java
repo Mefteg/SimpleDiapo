@@ -22,6 +22,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import timber.log.Timber;
+
 public class HttpDiapoLoader
 {
     private static final String TAG = "HttpDiapoLoader";
@@ -96,7 +98,7 @@ public class HttpDiapoLoader
                     }
                     catch (IOException e)
                     {
-                        Log.e(TAG, "Not able to load " + imageURL + " :\n" + e.toString());
+                        Timber.e("Not able to load " + imageURL + " :\n" + e.toString());
                         callback.onError(e);
 
                         return;
@@ -165,7 +167,7 @@ public class HttpDiapoLoader
         }
         catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
             return false;
         }
 
@@ -244,7 +246,7 @@ public class HttpDiapoLoader
         }
         catch (IOException e)
         {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
             return false;
         }
 

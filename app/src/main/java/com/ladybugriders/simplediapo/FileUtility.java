@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import timber.log.Timber;
+
 public abstract class FileUtility
 {
     private static final String TAG = "FileUtility";
@@ -22,14 +24,14 @@ public abstract class FileUtility
         {
             if (file.mkdir() == false)
             {
-                Log.e(TAG, "Directory not created.");
+                Timber.e("Directory not created.");
                 return null;
             }
         }
 
         if (file.isDirectory() == false)
         {
-            Log.e(TAG, "File " + file.getAbsolutePath() + " is not a directory.");
+            Timber.e("File " + file.getAbsolutePath() + " is not a directory.");
             return null;
         }
 

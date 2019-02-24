@@ -49,7 +49,7 @@ public abstract class FileUtility
         FileFilter filter = new FileFilter() {
             @Override
             public boolean accept(File file) {
-                return file.isFile() && file.getName().endsWith("jpg");
+                return file.isFile() && file.getName().toLowerCase().endsWith("jpg");
             }
         };
         return directory.listFiles(filter);

@@ -72,6 +72,9 @@ public class HttpDiapoLoader
                     return;
                 }
 
+                // Remove unnecessary images.
+                removeUnnecessaryImages(m_images);
+
                 if (m_images.length == 0)
                 {
                     if (callback != null)
@@ -167,6 +170,38 @@ public class HttpDiapoLoader
         }
 
         return true;
+    }
+
+    private void removeUnnecessaryImages(String[] newImages)
+    {
+        File albumDirectory = FileUtility.GetPublicAlbumStorageDir();
+        File[] storedImageFiles = FileUtility.GetAllImagesInDirectory(albumDirectory);
+
+        for (File imageFile : storedImageFiles)
+        {
+            if (arrayContains(m_images, imageFile.getName()))
+            {
+                // Check change with md5.
+            }
+            else
+            {
+                // Remove the file.
+                imageFile.delete();
+            }
+        }
+    }
+
+    private boolean arrayContains(String[] array, String value)
+    {
+        for (String element : array)
+        {
+            if (element.equals(value))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean saveAsJpeg(Bitmap image, String imageName)

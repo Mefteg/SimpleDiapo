@@ -1,13 +1,16 @@
 package com.ladybugriders.simplediapo;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -25,6 +28,8 @@ public class DiapoController
             }
         }
     }
+
+    private static final int SizeMax = 4096;
 
     private Context m_context;
 
@@ -94,7 +99,8 @@ public class DiapoController
         Runnable myRunnable = new Runnable() {
             @Override
             public void run() {
-                Picasso.get().load(m_imageFiles[imageIndex]).into(imageView);
+                RequestCreator request = Picasso.get().load(m_imageFiles[imageIndex]);
+                request.fit().centerInside().into(imageView);
             }
         };
         mainHandler.post(myRunnable);

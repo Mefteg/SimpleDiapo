@@ -1,19 +1,18 @@
 package com.ladybugriders.simplediapo;
 
 import android.os.Environment;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
+
+import timber.log.Timber;
 
 public abstract class FileUtility
 {
-    private static final String TAG = "FileUtility";
-
     private static final String SIMPLE_DIAPO_ALBUM = "SimpleDiapo";
+    private static final String IMAGE_EXT = "jpg";
 
     public static File GetPublicAlbumStorageDir() {
         // Get the directory for the user's public pictures directory.
@@ -22,14 +21,14 @@ public abstract class FileUtility
         {
             if (file.mkdir() == false)
             {
-                Log.e(TAG, "Directory not created.");
+                Timber.e("Directory not created.");
                 return null;
             }
         }
 
         if (file.isDirectory() == false)
         {
-            Log.e(TAG, "File " + file.getAbsolutePath() + " is not a directory.");
+            Timber.e("File " + file.getAbsolutePath() + " is not a directory.");
             return null;
         }
 
@@ -49,7 +48,7 @@ public abstract class FileUtility
         FileFilter filter = new FileFilter() {
             @Override
             public boolean accept(File file) {
-                return file.isFile() && file.getName().endsWith("jpg");
+                return file.isFile() && file.getName().toLowerCase().endsWith(IMAGE_EXT);
             }
         };
         return directory.listFiles(filter);

@@ -1,37 +1,31 @@
 package com.ladybugriders.simplediapo;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
-import android.widget.TextView;
 
 import com.squareup.picasso.Callback;
+
+import timber.log.Timber;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
-
     private static final int MIN_TIME_INTERVAL_BETWEEN_TWO_IMAGES = 1; // in seconds.
     private static final int MAX_TIME_INTERVAL_BETWEEN_TWO_IMAGES = 30 * 60; // in seconds.
 
@@ -79,10 +73,10 @@ public class MainActivity extends AppCompatActivity {
 
     private DiapoController m_diapoController;
     private HttpDiapoLoader m_diapoLoader;
-    private final Callback m_diapoLoaderCallback = new Callback() {
+    private final Callback m_startDiapoLoaderCallback = new Callback() {
         @Override
         public void onSuccess() {
-            Log.d("TAG", "Diapo loading is successful !");
+            Timber.d("Diapo loading is successful !");
             if (m_diapoController == null || m_diapoImageView == null)
             {
                 return;
@@ -93,7 +87,25 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onError(Exception e) {
-            Log.e("TAG", "Not able to load diapo successfully.");
+            Timber.e("Not able to load diapo successfully.");
+        }
+    };
+
+    private final Callback m_resetDiapoLoaderCallback = new Callback() {
+        @Override
+        public void onSuccess() {
+            Timber.d("Diapo loading is successful !");
+            if (m_diapoController == null || m_diapoImageView == null)
+            {
+                return;
+            }
+
+            m_diapoController.resetDiapo();
+        }
+
+        @Override
+        public void onError(Exception e) {
+            Timber.e("Not able to load diapo successfully.");
         }
     };
 
@@ -103,10 +115,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (BuildConfig.DEBUG)
+        {
+            Timber.plant(new Timber.DebugTree());
+        }
+
         m_diapoController = new DiapoController(this);
 
         m_diapoLoader = new HttpDiapoLoader(this);
-        m_diapoLoader.load(m_diapoLoaderCallback);
+        m_diapoLoader.load(m_startDiapoLoaderCallback);
 
         setContentView(R.layout.activity_main);
 
@@ -148,6 +165,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.set_remote_target_folder_url:
                 setRemoteTargetFolderURL();
+                return true;
+            case R.id.set_images_provider:
+                setImagesProvider();
                 return true;
             case R.id.set_time_interval_between_two_images:
                 setTimeIntervalBetweenTwoImages();
@@ -238,7 +258,32 @@ public class MainActivity extends AppCompatActivity {
                         // Store value in shared preferences.
                         SharedPreferencesUtilty.SetRemoteFolderURL(getBaseContext(), remoteFolderURL);
 
-                        m_diapoController.resetDiapo();
+                        m_diapoLoader.load(m_resetDiapoLoaderCallback);
+                    }
+                });
+    }
+
+    private void setImagesProvider()
+    {
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        // Set value regarding what is stored in shared preferences.
+        input.setText(SharedPreferencesUtilty.GetImagesProvider(getBaseContext()));
+
+        showCustomAlertDialog(
+                getResources().getString(R.string.set_images_provider),
+                input,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Get value from text field.
+                        String imagesProvider = input.getText().toString();
+                        // Store value in shared preferences.
+                        SharedPreferencesUtilty.SetImagesProvider(getBaseContext(), imagesProvider);
+
+                        m_diapoLoader.load(m_resetDiapoLoaderCallback);
                     }
                 });
     }

@@ -5,38 +5,32 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
+
+import timber.log.Timber;
 
 public class HttpDiapoLoader
 {
-    private static final String TAG = "HttpDiapoLoader";
-    private static final String IMAGE_URL = "http://37.187.65.218/tom_www/public/images/gringo_avatar_tom.jpg";
-    private static final String IMAGE_NAME = "gringo_avatar_tom";
-    private static final String IMAGE_EXT = "jpg";
-    private static final String SIMPLE_DIAPO_JSON_FILENAME = "simplediapo.json";
 
     private Context m_context;
-    private String[] m_images;
-
-    public HttpDiapoLoader()
-    {
-
-    }
+    private ImageJSONObject[] m_images;
 
     public HttpDiapoLoader(Context context)
     {
@@ -72,6 +66,9 @@ public class HttpDiapoLoader
                     return;
                 }
 
+                // Remove unnecessary images.
+                removeUnnecessaryImages(m_images);
+
                 if (m_images.length == 0)
                 {
                     if (callback != null)
@@ -84,22 +81,31 @@ public class HttpDiapoLoader
 
                 for (int i = 0; i < m_images.length; ++i)
                 {
-                    String imageName = m_images[i];
-                    String imageURL = SharedPreferencesUtilty.GetRemoteFolderURL(m_context) + imageName;
-                    Bitmap image;
-                    try
+                    String imageFilePath = m_images[i].GetFilePath();
+                    String imageName;
+                    String imageURL;
+                    if (m_images[i].GetPathType() == ImageJSONObject.PathType.Absolute)
                     {
-                        image = Picasso.get().load(imageURL).get();
+                        imageName = Uri.parse(imageFilePath).getLastPathSegment();
+                        imageURL = imageFilePath;
                     }
-                    catch (IOException e)
+                    else
                     {
-                        Log.e(TAG, "Not able to load " + imageURL + " :\n" + e.toString());
-                        callback.onError(e);
-
-                        return;
+                        imageName = imageFilePath;
+                        imageURL = SharedPreferencesUtilty.GetRemoteFolderURL(m_context) + imageFilePath;
                     }
 
-                    boolean imageSuccessfullySaved = saveAsJpeg(image, imageName);
+                    // Don't overwrite kept images.
+                    File imageFile = getImageFileFromAlbum(imageName);
+                    if (imageFile.exists())
+                    {
+                        // Process next image.
+                        continue;
+                    }
+
+                    //boolean imageSuccessfullySaved = saveAsJpeg(image, imageName);
+                    boolean imageSuccessfullySaved = DownloadImage(imageURL, imageName);
+
                     if (imageSuccessfullySaved == false)
                     {
                         if (callback != null)
@@ -138,7 +144,8 @@ public class HttpDiapoLoader
     private boolean loadSimpleDiapoJSON()
     {
         String remoteFolderURL = SharedPreferencesUtilty.GetRemoteFolderURL(m_context);
-        String jsonURL = remoteFolderURL + SIMPLE_DIAPO_JSON_FILENAME;
+        String imagesProvider = SharedPreferencesUtilty.GetImagesProvider(m_context);
+        String jsonURL = remoteFolderURL + imagesProvider;
         try
         {
             URL url = new URL(jsonURL);
@@ -161,7 +168,103 @@ public class HttpDiapoLoader
         }
         catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
+            return false;
+        }
+
+        return true;
+    }
+
+    private void removeUnnecessaryImages(ImageJSONObject[] newImages)
+    {
+        File albumDirectory = FileUtility.GetPublicAlbumStorageDir();
+        File[] storedImageFiles = FileUtility.GetAllImagesInDirectory(albumDirectory);
+
+        for (File imageFile : storedImageFiles)
+        {
+            int imageIndex = arrayFind(newImages, imageFile.getName());
+            // If the stored images is part of the new images to download.
+            if (imageIndex > -1)
+            {
+                // Check change by comparing md5.
+                boolean sameFiles = MD5.CheckMD5(newImages[imageIndex].GetMD5(), imageFile);
+                // Files are the same.
+                if (sameFiles == true)
+                {
+                    // Image must not be removed.
+                    continue;
+                }
+            }
+
+            // Otherwise, the image is not necessary anymore.
+            // Remove it.
+            imageFile.delete();
+        }
+    }
+
+    // element index if found, -1 otherwise.
+    private int arrayFind(ImageJSONObject[] array, String value)
+    {
+        int elementCount = array.length;
+        for (int i = 0; i < elementCount; ++i)
+        {
+            if (array[i].GetFilePath().equals(value))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private  File getImageFileFromAlbum(String imageName)
+    {
+        if (isExternalStorageWritable() == false)
+        {
+            return null;
+        }
+
+        File albumDirectory = FileUtility.GetPublicAlbumStorageDir();
+        if (albumDirectory == null)
+        {
+            return null;
+        }
+
+        // Get the file in the album directory.
+        return new File(albumDirectory, imageName);
+    }
+
+    private boolean DownloadImage(String imageURL, String imageName)
+    {
+        File imageFile = getImageFileFromAlbum(imageName);
+        if (imageFile == null)
+        {
+            Timber.e("Cannot get image file from album.");
+            return false;
+        }
+
+        try
+        {
+            URL url = new URL(imageURL);
+            URLConnection urlConnection = url.openConnection();
+            urlConnection.setConnectTimeout(1000);
+            InputStream input = urlConnection.getInputStream();
+
+            FileOutputStream output = new FileOutputStream(imageFile);
+
+            int read = 0;
+            byte[] buffer = new byte[1024];
+            while ((read = input.read(buffer)) > -1)
+            {
+                output.write(buffer, 0, read);
+            }
+
+            output.close();
+            input.close();
+        }
+        catch (Exception e)
+        {
+            Timber.e(e.toString());
             return false;
         }
 
@@ -170,13 +273,8 @@ public class HttpDiapoLoader
 
     private boolean saveAsJpeg(Bitmap image, String imageName)
     {
-        if (isExternalStorageWritable() == false)
-        {
-            return false;
-        }
-
-        File albumDirectory = FileUtility.GetPublicAlbumStorageDir();
-        if (albumDirectory == null)
+        File imageFile = getImageFileFromAlbum(imageName);
+        if (imageFile == null)
         {
             return false;
         }
@@ -184,8 +282,6 @@ public class HttpDiapoLoader
         // Get image data compressed in JPEG format.
         byte[] imageData = getImageData(image, Bitmap.CompressFormat.JPEG);
 
-        // Get the file in the album directory.
-        File imageFile = new File(albumDirectory, imageName);
         try
         {
             // Create the file.
@@ -208,7 +304,7 @@ public class HttpDiapoLoader
         }
         catch (IOException e)
         {
-            Log.e(TAG, e.toString());
+            Timber.e(e.toString());
             return false;
         }
 

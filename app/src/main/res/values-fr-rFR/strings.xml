@@ -6,4 +6,5 @@
     <string name="ok">OK</string>
     <string name="cancel">Annuler</string>
     <string name="set_time_interval_between_two_images">Définir l\'intervalle de temps entre deux images</string>
+    <string name="set_images_provider">Définir le fournisseur d\'images</string>
 </resources>

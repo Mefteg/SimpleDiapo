@@ -180,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.set_time_interval_between_two_images:
                 setTimeIntervalBetweenTwoImages();
                 return true;
+            case R.id.refresh:
+                refreshDiapo();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -319,5 +322,16 @@ public class MainActivity extends AppCompatActivity {
                         m_diapoController.resetDiapo();
                     }
                 });
+    }
+
+    private void refreshDiapo()
+    {
+        if (m_diapoLoader == null)
+        {
+            Timber.e("Refresh is impossible: no HttpDiapoLoader available.");
+            return;
+        }
+
+        m_diapoLoader.load(m_startDiapoLoaderCallback);
     }
 }

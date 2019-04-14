@@ -7,4 +7,5 @@
     <string name="cancel">Cancel</string>
     <string name="set_time_interval_between_two_images">Set time interval between two images</string>
     <string name="set_images_provider">Set images provider</string>
+    <string name="refresh">Refresh</string>
 </resources>

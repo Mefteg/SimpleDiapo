@@ -10,7 +10,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,8 +27,6 @@ public class DiapoController
             }
         }
     }
-
-    private static final int SizeMax = 4096;
 
     private Context m_context;
 
@@ -73,6 +70,8 @@ public class DiapoController
         }
 
         cancelTimerIfNecessary();
+
+        m_displayedImageIndex = 0;
 
         int timeIntervalInMs = SharedPreferencesUtilty.GetTimeIntervalBetweenTwoImages(m_context) * 1000;
         // Then schedule the new task.

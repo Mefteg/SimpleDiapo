@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSuccess() {
             Timber.d("Diapo loading is successful !");
+
             if (m_diapoController == null || m_diapoImageView == null)
             {
                 return;
@@ -88,6 +89,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onError(Exception e) {
             Timber.e("Not able to load diapo successfully.");
+
+            if (m_diapoController == null || m_diapoImageView == null)
+            {
+                return;
+            }
+
+            m_diapoController.startDiapo(m_diapoImageView);
         }
     };
 
